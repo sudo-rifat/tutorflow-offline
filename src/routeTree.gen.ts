@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as ChaptersChapterIdRouteImport } from './routes/chapters.$chapterId'
+import { Route as LessonsIndexRouteImport } from './routes/lessons.index'
+import { Route as LessonsLessonIdRouteImport } from './routes/lessons.$lessonId'
+import { Route as LessonsNewRouteImport } from './routes/lessons.new'
 import { Route as StudentsIndexRouteImport } from './routes/students.index'
 import { Route as StudentsStudentIdRouteImport } from './routes/students.$studentId'
 import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects.$subjectId'
@@ -19,6 +23,11 @@ import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects.$subjec
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TodayRoute = TodayRouteImport.update({
@@ -29,6 +38,21 @@ const TodayRoute = TodayRouteImport.update({
 const ChaptersChapterIdRoute = ChaptersChapterIdRouteImport.update({
   id: '/chapters/$chapterId',
   path: '/chapters/$chapterId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LessonsIndexRoute = LessonsIndexRouteImport.update({
+  id: '/lessons/',
+  path: '/lessons/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
+  id: '/lessons/$lessonId',
+  path: '/lessons/$lessonId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LessonsNewRoute = LessonsNewRouteImport.update({
+  id: '/lessons/new',
+  path: '/lessons/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentsIndexRoute = StudentsIndexRouteImport.update({
@@ -49,62 +73,90 @@ const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
+  '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/lessons/new': typeof LessonsNewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/lessons/': typeof LessonsIndexRoute
   '/students/': typeof StudentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
+  '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/lessons/new': typeof LessonsNewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/lessons': typeof LessonsIndexRoute
   '/students': typeof StudentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
+  '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/lessons/new': typeof LessonsNewRoute
   '/students/$studentId': typeof StudentsStudentIdRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/lessons/': typeof LessonsIndexRoute
   '/students/': typeof StudentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/search'
     | '/today'
     | '/chapters/$chapterId'
+    | '/lessons/$lessonId'
+    | '/lessons/new'
     | '/students/$studentId'
     | '/subjects/$subjectId'
+    | '/lessons/'
     | '/students/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/search'
     | '/today'
     | '/chapters/$chapterId'
+    | '/lessons/$lessonId'
+    | '/lessons/new'
     | '/students/$studentId'
     | '/subjects/$subjectId'
+    | '/lessons'
     | '/students'
   id:
     | '__root__'
     | '/'
+    | '/search'
     | '/today'
     | '/chapters/$chapterId'
+    | '/lessons/$lessonId'
+    | '/lessons/new'
     | '/students/$studentId'
     | '/subjects/$subjectId'
+    | '/lessons/'
     | '/students/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SearchRoute: typeof SearchRoute
   TodayRoute: typeof TodayRoute
   ChaptersChapterIdRoute: typeof ChaptersChapterIdRoute
+  LessonsLessonIdRoute: typeof LessonsLessonIdRoute
+  LessonsNewRoute: typeof LessonsNewRoute
   StudentsStudentIdRoute: typeof StudentsStudentIdRoute
   SubjectsSubjectIdRoute: typeof SubjectsSubjectIdRoute
+  LessonsIndexRoute: typeof LessonsIndexRoute
   StudentsIndexRoute: typeof StudentsIndexRoute
 }
 
@@ -115,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/today': {
@@ -129,6 +188,27 @@ declare module '@tanstack/react-router' {
       path: '/chapters/$chapterId'
       fullPath: '/chapters/$chapterId'
       preLoaderRoute: typeof ChaptersChapterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lessons/': {
+      id: '/lessons/'
+      path: '/lessons'
+      fullPath: '/lessons/'
+      preLoaderRoute: typeof LessonsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lessons/$lessonId': {
+      id: '/lessons/$lessonId'
+      path: '/lessons/$lessonId'
+      fullPath: '/lessons/$lessonId'
+      preLoaderRoute: typeof LessonsLessonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lessons/new': {
+      id: '/lessons/new'
+      path: '/lessons/new'
+      fullPath: '/lessons/new'
+      preLoaderRoute: typeof LessonsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/students/': {
@@ -157,10 +237,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SearchRoute: SearchRoute,
   TodayRoute: TodayRoute,
   ChaptersChapterIdRoute: ChaptersChapterIdRoute,
+  LessonsLessonIdRoute: LessonsLessonIdRoute,
+  LessonsNewRoute: LessonsNewRoute,
   StudentsStudentIdRoute: StudentsStudentIdRoute,
   SubjectsSubjectIdRoute: SubjectsSubjectIdRoute,
+  LessonsIndexRoute: LessonsIndexRoute,
   StudentsIndexRoute: StudentsIndexRoute,
 }
 export const routeTree = rootRouteImport
