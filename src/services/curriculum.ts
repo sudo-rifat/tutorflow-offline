@@ -211,7 +211,7 @@ async function reorder<T extends { id: ID; orderIndex: number }>(
   const target = index + direction;
   if (index < 0 || target < 0 || target >= siblings.length) return;
   const next = [...siblings];
-  const [moved] = next.splice(index, 1);
+  const moved = next.splice(index, 1)[0]!;
   next.splice(target, 0, moved);
   await Promise.all(next.map((row, i) => persist(row.id, i)));
 }

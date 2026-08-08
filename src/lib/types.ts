@@ -13,14 +13,14 @@ export interface Student extends Timestamps {
   id: ID;
   name: string;
   className: string;
-  groupName?: string;
-  institution?: string;
-  phone?: string;
-  guardianName?: string;
-  preferredTime?: string;
-  startDate?: string;
+  groupName?: string | undefined;
+  institution?: string | undefined;
+  phone?: string | undefined;
+  guardianName?: string | undefined;
+  preferredTime?: string | undefined;
+  startDate?: string | undefined;
   status: StudentStatus;
-  notes?: string;
+  notes?: string | undefined;
 }
 
 export interface Subject extends Timestamps {
@@ -35,7 +35,7 @@ export interface Chapter extends Timestamps {
   subjectId: ID;
   chapterNumber: string;
   title: string;
-  description?: string;
+  description?: string | undefined;
   orderIndex: number;
 }
 
@@ -43,7 +43,7 @@ export interface Topic extends Timestamps {
   id: ID;
   chapterId: ID;
   title: string;
-  description?: string;
+  description?: string | undefined;
   orderIndex: number;
 }
 
@@ -51,11 +51,11 @@ export interface Lesson extends Timestamps {
   id: ID;
   studentId: ID;
   subjectId: ID;
-  chapterId?: ID;
+  chapterId?: ID | undefined;
   /** ISO date only, e.g. 2026-08-08 (local calendar day) */
   lessonDate: string;
-  lessonGoal?: string;
-  generalNote?: string;
+  lessonGoal?: string | undefined;
+  generalNote?: string | undefined;
 }
 
 export interface LessonTopic extends Timestamps {
@@ -63,8 +63,8 @@ export interface LessonTopic extends Timestamps {
   lessonId: ID;
   topicId: ID;
   status: TopicStatus;
-  note?: string;
-  understandingRating?: number;
+  note?: string | undefined;
+  understandingRating?: number | undefined;
   orderIndex: number;
 }
 
@@ -73,7 +73,7 @@ export interface CarryForwardItem extends Timestamps {
   originalLessonId: ID;
   topicId: ID;
   studentId: ID;
-  targetDate?: string;
+  targetDate?: string | undefined;
   status: CarryForwardStatus;
 }
 
