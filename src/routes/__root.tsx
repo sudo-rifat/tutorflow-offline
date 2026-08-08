@@ -10,6 +10,9 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { AppShell } from "@/components/AppShell";
+import { Toaster } from "@/components/ui/sonner";
+import { useFirstRunSeed } from "@/hooks/useFirstRunSeed";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -77,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "TutorFlow — Offline Tutor Lesson Planner" },
+      { name: "description", content: "Plan, teach and track private tuition lessons — fully offline, stored on your own device." },
+      { name: "author", content: "TutorFlow" },
+      { property: "og:title", content: "TutorFlow — Plan. Teach. Track. Offline." },
+      { property: "og:description", content: "An offline-first lesson planner for private tutors." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "theme-color", content: "#0f6f80" },
     ],
     links: [
       {
@@ -117,10 +120,15 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useFirstRunSeed();
+
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppShell>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </AppShell>
+      <Toaster />
     </QueryClientProvider>
   );
 }
