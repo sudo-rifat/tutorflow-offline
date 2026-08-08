@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as ChaptersChapterIdRouteImport } from './routes/chapters.$chapterId'
 import { Route as LessonsIndexRouteImport } from './routes/lessons.index'
@@ -28,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TodayRoute = TodayRouteImport.update({
@@ -74,6 +80,7 @@ const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/today': typeof TodayRoute
   '/chapters/$chapterId': typeof ChaptersChapterIdRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/search'
+    | '/settings'
     | '/today'
     | '/chapters/$chapterId'
     | '/lessons/$lessonId'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/search'
+    | '/settings'
     | '/today'
     | '/chapters/$chapterId'
     | '/lessons/$lessonId'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/search'
+    | '/settings'
     | '/today'
     | '/chapters/$chapterId'
     | '/lessons/$lessonId'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SearchRoute: typeof SearchRoute
+  SettingsRoute: typeof SettingsRoute
   TodayRoute: typeof TodayRoute
   ChaptersChapterIdRoute: typeof ChaptersChapterIdRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/today': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SearchRoute: SearchRoute,
+  SettingsRoute: SettingsRoute,
   TodayRoute: TodayRoute,
   ChaptersChapterIdRoute: ChaptersChapterIdRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
@@ -250,3 +271,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
