@@ -14,6 +14,7 @@ import { AppShell } from "@/components/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 import { useFirstRunSeed } from "@/hooks/useFirstRunSeed";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { registerServiceWorker } from "@/lib/register-sw";
 
 function NotFoundComponent() {
   return (
@@ -127,6 +128,11 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useFirstRunSeed();
+
+  useEffect(() => {
+    void registerServiceWorker();
+  }, []);
+
 
   return (
     <QueryClientProvider client={queryClient}>
