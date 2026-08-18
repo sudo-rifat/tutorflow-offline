@@ -93,7 +93,12 @@ function StudentProfile() {
         }
       />
 
-      <Tabs defaultValue="overview">
+      <Tabs
+        value={tab ?? "overview"}
+        onValueChange={(value) =>
+          navigate({ search: { tab: value as TabValue }, params: { studentId }, replace: true })
+        }
+      >
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>
