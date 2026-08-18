@@ -45,10 +45,13 @@ export const Route = createFileRoute("/students/$studentId")({
 
 function StudentProfile() {
   const { studentId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const overview = useLiveQuery(() => studentOverview(studentId), [studentId]);
   const subjectRows = useLiveQuery(() => subjectProgressRows(studentId), [studentId]);
   const lessons = useLiveQuery(() => lessonHistory({ studentId }), [studentId]);
   const [newSubject, setNewSubject] = useState("");
+
 
   if (overview === undefined) return <LoadingState />;
   if (!overview) {
