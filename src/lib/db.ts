@@ -1,12 +1,16 @@
 import Dexie, { type Table } from "dexie";
 import type {
   AppSetting,
+  ClassTemplate,
   CarryForwardItem,
   Chapter,
   Lesson,
   LessonTopic,
   Student,
   Subject,
+  TemplateChapter,
+  TemplateSubject,
+  TemplateTopic,
   Topic,
 } from "./types";
 
@@ -19,6 +23,10 @@ export class TutorFlowDB extends Dexie {
   lessonTopics!: Table<LessonTopic, string>;
   carryForwardItems!: Table<CarryForwardItem, string>;
   appSettings!: Table<AppSetting, string>;
+  classTemplates!: Table<ClassTemplate, string>;
+  templateSubjects!: Table<TemplateSubject, string>;
+  templateChapters!: Table<TemplateChapter, string>;
+  templateTopics!: Table<TemplateTopic, string>;
 
   constructor() {
     super("tutorflow");
@@ -34,6 +42,15 @@ export class TutorFlowDB extends Dexie {
       lessonTopics: "id, lessonId, topicId, status, orderIndex",
       carryForwardItems: "id, studentId, topicId, originalLessonId, status, targetDate",
       appSettings: "key",
+    });
+
+    // Version 2 — reusable class-level curriculum templates (class → subject →
+    // chapter → topic) that can be copied onto any student.
+    this.version(2).stores({
+      classTemplates: "id, name, orderIndex",
+      templateSubjects: "id, classTemplateId, name, orderIndex",
+      templateChapters: "id, templateSubjectId, chapterNumber, orderIndex",
+      templateTopics: "id, templateChapterId, orderIndex",
     });
   }
 }
@@ -57,6 +74,10 @@ export const DATA_TABLES = [
   "lessons",
   "lessonTopics",
   "carryForwardItems",
+  "classTemplates",
+  "templateSubjects",
+  "templateChapters",
+  "templateTopics",
 ] as const;
 
 export type DataTableName = (typeof DATA_TABLES)[number];

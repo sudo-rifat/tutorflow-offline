@@ -77,6 +77,39 @@ export interface CarryForwardItem extends Timestamps {
   status: CarryForwardStatus;
 }
 
+/* ------------------- reusable class-level curriculum templates ------------------- */
+
+export interface ClassTemplate extends Timestamps {
+  id: ID;
+  /** e.g. "Class 9" */
+  name: string;
+  orderIndex: number;
+}
+
+export interface TemplateSubject extends Timestamps {
+  id: ID;
+  classTemplateId: ID;
+  name: string;
+  orderIndex: number;
+}
+
+export interface TemplateChapter extends Timestamps {
+  id: ID;
+  templateSubjectId: ID;
+  chapterNumber: string;
+  title: string;
+  description?: string | undefined;
+  orderIndex: number;
+}
+
+export interface TemplateTopic extends Timestamps {
+  id: ID;
+  templateChapterId: ID;
+  title: string;
+  description?: string | undefined;
+  orderIndex: number;
+}
+
 export interface AppSetting {
   key: string;
   value: unknown;
