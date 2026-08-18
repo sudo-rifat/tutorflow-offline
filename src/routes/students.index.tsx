@@ -142,6 +142,17 @@ function StudentsPage() {
                     View
                   </Link>
                 </Button>
+                <Button asChild size="sm">
+                  <Link
+                    to="/students/$studentId"
+                    params={{ studentId: student.id }}
+                    search={{ tab: "subjects" }}
+                  >
+                    <Plus className="size-3.5" aria-hidden="true" />
+                    Add subject
+                  </Link>
+                </Button>
+
                 <StudentFormDialog
                   student={student}
                   trigger={

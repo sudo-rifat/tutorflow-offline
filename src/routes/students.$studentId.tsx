@@ -18,7 +18,15 @@ import { createSubject, deleteSubjectCascade, moveSubject, renameSubject } from 
 import { studentOverview, subjectProgressRows } from "@/services/studentViews";
 import { lessonHistory } from "@/services/views";
 
+const TABS = ["overview", "subjects", "lessons", "notes"] as const;
+type TabValue = (typeof TABS)[number];
+
 export const Route = createFileRoute("/students/$studentId")({
+  validateSearch: (search: Record<string, unknown>): { tab?: TabValue | undefined } => ({
+    tab: TABS.includes(search["tab"] as TabValue) ? (search["tab"] as TabValue) : undefined,
+  }),
+
+
   head: () => ({
     meta: [
       { title: "Student Profile — TutorFlow" },
@@ -34,12 +42,16 @@ export const Route = createFileRoute("/students/$studentId")({
   ),
 });
 
+
 function StudentProfile() {
   const { studentId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const overview = useLiveQuery(() => studentOverview(studentId), [studentId]);
   const subjectRows = useLiveQuery(() => subjectProgressRows(studentId), [studentId]);
   const lessons = useLiveQuery(() => lessonHistory({ studentId }), [studentId]);
   const [newSubject, setNewSubject] = useState("");
+
 
   if (overview === undefined) return <LoadingState />;
   if (!overview) {
@@ -81,7 +93,12 @@ function StudentProfile() {
         }
       />
 
-      <Tabs defaultValue="overview">
+      <Tabs
+        value={tab ?? "overview"}
+        onValueChange={(value) =>
+          navigate({ search: { tab: value as TabValue }, params: { studentId }, replace: true })
+        }
+      >
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>
@@ -90,6 +107,22 @@ function StudentProfile() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 pt-4">
+          <div className="card-surface flex flex-wrap items-center justify-between gap-3 p-4">
+            <p className="text-sm text-muted-foreground">
+              {overview.subjects.length
+                ? `${overview.subjects.length} subject${overview.subjects.length > 1 ? "s" : ""} for ${student.name}.`
+                : `No subjects yet for ${student.name}.`}
+            </p>
+            <Button
+              size="sm"
+              onClick={() =>
+                navigate({ search: { tab: "subjects" }, params: { studentId }, replace: true })
+              }
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              {overview.subjects.length ? "Manage subjects" : "Add subject"}
+            </Button>
+          </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Subjects" value={overview.subjects.length} />
             <Stat label="Chapters" value={totals.chapters} />
