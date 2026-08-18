@@ -22,9 +22,10 @@ const TABS = ["overview", "subjects", "lessons", "notes"] as const;
 type TabValue = (typeof TABS)[number];
 
 export const Route = createFileRoute("/students/$studentId")({
-  validateSearch: (search: Record<string, unknown>): { tab?: TabValue } => ({
+  validateSearch: (search: Record<string, unknown>): { tab?: TabValue | undefined } => ({
     tab: TABS.includes(search["tab"] as TabValue) ? (search["tab"] as TabValue) : undefined,
   }),
+
 
   head: () => ({
     meta: [
