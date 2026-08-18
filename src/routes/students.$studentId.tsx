@@ -18,7 +18,13 @@ import { createSubject, deleteSubjectCascade, moveSubject, renameSubject } from 
 import { studentOverview, subjectProgressRows } from "@/services/studentViews";
 import { lessonHistory } from "@/services/views";
 
+const TABS = ["overview", "subjects", "lessons", "notes"] as const;
+type TabValue = (typeof TABS)[number];
+
 export const Route = createFileRoute("/students/$studentId")({
+  validateSearch: (search: Record<string, unknown>): { tab: TabValue } => ({
+    tab: TABS.includes(search.tab as TabValue) ? (search.tab as TabValue) : "overview",
+  }),
   head: () => ({
     meta: [
       { title: "Student Profile — TutorFlow" },
@@ -33,6 +39,7 @@ export const Route = createFileRoute("/students/$studentId")({
     </ClientOnly>
   ),
 });
+
 
 function StudentProfile() {
   const { studentId } = Route.useParams();
