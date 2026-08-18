@@ -107,6 +107,22 @@ function StudentProfile() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 pt-4">
+          <div className="card-surface flex flex-wrap items-center justify-between gap-3 p-4">
+            <p className="text-sm text-muted-foreground">
+              {overview.subjects.length
+                ? `${overview.subjects.length} subject${overview.subjects.length > 1 ? "s" : ""} for ${student.name}.`
+                : `No subjects yet for ${student.name}.`}
+            </p>
+            <Button
+              size="sm"
+              onClick={() =>
+                navigate({ search: { tab: "subjects" }, params: { studentId }, replace: true })
+              }
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              {overview.subjects.length ? "Manage subjects" : "Add subject"}
+            </Button>
+          </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Subjects" value={overview.subjects.length} />
             <Stat label="Chapters" value={totals.chapters} />
