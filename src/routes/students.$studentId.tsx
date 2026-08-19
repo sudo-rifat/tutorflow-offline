@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowDown, ArrowUp, BookOpen, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, Layers, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ApplyTemplateDialog } from "@/components/ApplyTemplateDialog";
 import { PageHeader } from "@/components/AppShell";
 import { ClientOnly } from "@/components/ClientOnly";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -173,6 +174,27 @@ function StudentProfile() {
               Add
             </Button>
           </form>
+
+          <div className="card-surface flex flex-wrap items-center justify-between gap-2 p-4">
+            <p className="text-sm text-muted-foreground">
+              Reuse your saved class curriculum instead of typing it again.
+            </p>
+            <div className="flex gap-2">
+              <ApplyTemplateDialog
+                studentId={studentId}
+                studentClassName={student.className}
+                trigger={
+                  <Button size="sm" variant="secondary">
+                    <Layers className="size-4" aria-hidden="true" />
+                    Add from class template
+                  </Button>
+                }
+              />
+              <Button asChild size="sm" variant="ghost">
+                <Link to="/curriculum">Edit templates</Link>
+              </Button>
+            </div>
+          </div>
 
           {subjectRows === undefined ? (
             <LoadingState />
