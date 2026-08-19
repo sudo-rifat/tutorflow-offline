@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ApplyTemplateDialog } from "@/components/ApplyTemplateDialog";
 import { PageHeader } from "@/components/AppShell";
 import { ClientOnly } from "@/components/ClientOnly";
 import { LoadingState } from "@/components/states";
@@ -85,6 +86,9 @@ function NewLessonPage() {
       setSaving(false);
     }
   }
+
+  const activeStudent = students?.find((student) => student.id === studentId);
+  const needsSubjects = Boolean(studentId) && subjects !== undefined && subjects.length === 0;
 
   const carriedForThisSubject = carried?.filter((view) => !selected.includes(view.item.topicId)) ?? [];
 
@@ -171,6 +175,24 @@ function NewLessonPage() {
           </Select>
         </div>
       </div>
+
+      {needsSubjects && activeStudent ? (
+        <div className="card-surface flex flex-wrap items-center justify-between gap-2 p-4">
+          <p className="text-sm text-muted-foreground">
+            {activeStudent.name} has no subjects yet. Copy them from your {activeStudent.className}{" "}
+            template.
+          </p>
+          <ApplyTemplateDialog
+            studentId={activeStudent.id}
+            studentClassName={activeStudent.className}
+            trigger={
+              <Button type="button" size="sm" variant="secondary">
+                Add from class template
+              </Button>
+            }
+          />
+        </div>
+      ) : null}
 
       {chapterId ? (
         <section className="card-surface p-4">
