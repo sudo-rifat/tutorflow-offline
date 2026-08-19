@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, GraduationCap, Home, NotebookPen, Search, Settings } from "lucide-react";
+import { CalendarDays, GraduationCap, Home, Layers, NotebookPen, Search, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ const NAV = [
   { to: "/today", label: "Today", icon: CalendarDays },
   { to: "/students", label: "Students", icon: GraduationCap },
   { to: "/lessons", label: "Lessons", icon: NotebookPen },
+  { to: "/curriculum", label: "Classes", icon: Layers },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
@@ -94,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav
         aria-label="Main navigation"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-card/95 pt-1 backdrop-blur md:hidden"
+        className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-card/95 pt-1 backdrop-blur md:hidden"
       >
         {NAV.map(({ to, label, icon: Icon }) => (
           <Link
