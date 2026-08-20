@@ -1,6 +1,11 @@
 import { DATA_TABLES, getDb, type DataTableName } from "@/lib/db";
 import { nowIso, toLocalDateString } from "@/lib/ids";
 import { LAST_BACKUP_KEY, setSetting } from "./settings";
+import {
+  exportAllAttendanceData,
+  importAllAttendanceData,
+  clearAllAttendanceData,
+} from "./attendance";
 
 export const APP_VERSION = "1.0.0";
 export const BACKUP_VERSION = 1;
@@ -11,6 +16,7 @@ export interface BackupFile {
   appVersion: string;
   exportedAt: string;
   data: Record<DataTableName, unknown[]>;
+  attendance?: Record<string, Record<string, boolean>>;
 }
 
 export type BackupCounts = Record<DataTableName, number>;
@@ -27,6 +33,7 @@ export async function buildBackup(): Promise<BackupFile> {
     appVersion: APP_VERSION,
     exportedAt: nowIso(),
     data,
+    attendance: exportAllAttendanceData(),
   };
 }
 
@@ -101,6 +108,7 @@ export function parseBackup(raw: string): BackupFile {
     appVersion: typeof file.appVersion === "string" ? file.appVersion : "unknown",
     exportedAt: typeof file.exportedAt === "string" ? file.exportedAt : nowIso(),
     data,
+    attendance: file.attendance && typeof file.attendance === "object" ? file.attendance : undefined,
   };
 }
 
@@ -126,6 +134,10 @@ export async function importBackup(file: BackupFile, mode: ImportMode): Promise<
     }
   });
 
+  if (file.attendance) {
+    importAllAttendanceData(file.attendance, mode);
+  }
+
   return countBackup(file);
 }
 
@@ -135,4 +147,5 @@ export async function clearAllData(): Promise<void> {
   await db.transaction("rw", tables, async () => {
     for (const table of tables) await table.clear();
   });
+  clearAllAttendanceData();
 }

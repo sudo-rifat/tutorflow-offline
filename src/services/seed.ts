@@ -1,7 +1,7 @@
 import { getDb } from "@/lib/db";
-import { todayString, tomorrowString } from "@/lib/ids";
-import { createChapter, createSubject, createTopicsBulk, listChapters, listTopics } from "./curriculum";
-import { carryForwardUnfinished, createLesson, listLessonTopics, setLessonTopicNote, setLessonTopicStatus } from "./lessons";
+import { todayString } from "@/lib/ids";
+import { createSubject } from "./curriculum";
+import { createLesson } from "./lessons";
 import { createStudent } from "./students";
 
 /** Adds a realistic starter set so a brand-new install isn't an empty shell. */
@@ -31,75 +31,24 @@ export async function seedSampleData(): Promise<void> {
   });
 
   const physics = await createSubject(rahim.id, "Physics");
-  await createSubject(rahim.id, "Mathematics");
+  const math = await createSubject(rahim.id, "Mathematics");
   const nusratMath = await createSubject(nusrat.id, "Mathematics");
 
-  await createChapter(physics.id, {
-    chapterNumber: "01",
-    title: "Measurement",
-    description: "Units, instruments and measurement errors.",
+  await createLesson({
+    studentId: rahim.id,
+    lessonDate: todayString(),
+    items: [
+      { id: "1", subjectId: physics.id, subjectName: physics.name, notes: "Chapter 2: Motion — Speed & Acceleration formulas solved." },
+      { id: "2", subjectId: math.id, subjectName: math.name, notes: "Ex 3.1 Algebraic expressions" },
+    ],
+    generalNote: "Good concentration today.",
   });
-  const motion = await createChapter(physics.id, {
-    chapterNumber: "02",
-    title: "Motion",
-    description: "Distance, displacement, speed, velocity and acceleration.",
+
+  await createLesson({
+    studentId: nusrat.id,
+    lessonDate: todayString(),
+    items: [
+      { id: "3", subjectId: nusratMath.id, subjectName: nusratMath.name, notes: "Chapter 3: Factorisation basics" },
+    ],
   });
-  await createTopicsBulk(motion.id, [
-    "Distance",
-    "Displacement",
-    "Speed",
-    "Velocity",
-    "Acceleration",
-  ]);
-
-  const algebra = await createChapter(nusratMath.id, {
-    chapterNumber: "03",
-    title: "Algebraic Expressions",
-  });
-  await createTopicsBulk(algebra.id, ["Factorisation", "Simplification"]);
-
-  const motionTopics = await listTopics(motion.id);
-  const [distance, displacement, , velocity, acceleration] = motionTopics;
-
-  const todayLesson = await createLesson(
-    {
-      studentId: rahim.id,
-      subjectId: physics.id,
-      chapterId: motion.id,
-      lessonDate: todayString(),
-      lessonGoal: "Finish the basics of motion.",
-    },
-    motionTopics.map((t) => t.id),
-  );
-
-  const rows = await listLessonTopics(todayLesson.id);
-  for (const row of rows) {
-    if (row.topicId === distance?.id || row.topicId === displacement?.id) {
-      await setLessonTopicStatus(row.id, "completed");
-    }
-    if (row.topicId === velocity?.id) {
-      await setLessonTopicStatus(row.id, "partial");
-      await setLessonTopicNote(row.id, "Confusing velocity with speed — revise next class.");
-    }
-  }
-
-  await carryForwardUnfinished(todayLesson.id, tomorrowString());
-
-  const nusratChapters = await listChapters(nusratMath.id);
-  const firstChapter = nusratChapters[0];
-  if (firstChapter) {
-    const topics = await listTopics(firstChapter.id);
-    await createLesson(
-      {
-        studentId: nusrat.id,
-        subjectId: nusratMath.id,
-        chapterId: firstChapter.id,
-        lessonDate: todayString(),
-        lessonGoal: "Practise factorisation.",
-      },
-      topics.map((t) => t.id),
-    );
-  }
-
-  void acceleration;
 }

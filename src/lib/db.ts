@@ -44,13 +44,17 @@ export class TutorFlowDB extends Dexie {
       appSettings: "key",
     });
 
-    // Version 2 — reusable class-level curriculum templates (class → subject →
-    // chapter → topic) that can be copied onto any student.
+    // Version 2 — reusable class-level curriculum templates
     this.version(2).stores({
       classTemplates: "id, name, orderIndex",
       templateSubjects: "id, classTemplateId, name, orderIndex",
       templateChapters: "id, templateSubjectId, chapterNumber, orderIndex",
       templateTopics: "id, templateChapterId, orderIndex",
+    });
+
+    // Version 3 — simplified multi-subject lessons without chapter/topic requirements
+    this.version(3).stores({
+      lessons: "id, studentId, lessonDate, updatedAt",
     });
   }
 }

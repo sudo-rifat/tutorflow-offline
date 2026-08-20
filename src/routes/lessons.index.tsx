@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { NotebookPen, Plus } from "lucide-react";
+import { NotebookPen, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { PageHeader } from "@/components/AppShell";
 import { ClientOnly } from "@/components/ClientOnly";
@@ -17,8 +17,6 @@ export const Route = createFileRoute("/lessons/")({
     meta: [
       { title: "Lesson History — TutorFlow" },
       { name: "description", content: "Filter and review every lesson you have taught, offline." },
-      { property: "og:title", content: "Lesson History — TutorFlow" },
-      { property: "og:description", content: "Filter and review every lesson you have taught, offline." },
     ],
   }),
   component: () => (
@@ -30,7 +28,6 @@ export const Route = createFileRoute("/lessons/")({
 
 function LessonsPage() {
   const [studentId, setStudentId] = useState("all");
-  const [status, setStatus] = useState<"all" | "complete" | "incomplete">("all");
   const [date, setDate] = useState("");
   const [query, setQuery] = useState("");
 
@@ -40,58 +37,70 @@ function LessonsPage() {
       lessonHistory({
         ...(studentId !== "all" ? { studentId } : {}),
         ...(date ? { date } : {}),
-        status,
         query,
       }),
-    [studentId, status, date, query],
+    [studentId, date, query],
   );
+
+  const hasFilters = studentId !== "all" || date !== "" || query !== "";
+
+  const resetFilters = () => {
+    setStudentId("all");
+    setDate("");
+    setQuery("");
+  };
 
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Lessons"
-        description="Your full teaching history, stored on this device."
+        title="Lessons History"
+        description="Filter and review all your logged lessons."
         action={
           <Button asChild>
             <Link to="/lessons/new">
               <Plus className="size-4" aria-hidden="true" />
-              New lesson
+              Log New Lesson
             </Link>
           </Button>
         }
       />
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Select value={studentId} onValueChange={setStudentId}>
-          <SelectTrigger aria-label="Filter by student">
-            <SelectValue placeholder="All students" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All students</SelectItem>
-            {students?.map((student) => (
-              <SelectItem key={student.id} value={student.id}>
-                {student.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
-          <SelectTrigger aria-label="Filter by status">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Any status</SelectItem>
-            <SelectItem value="complete">Fully completed</SelectItem>
-            <SelectItem value="incomplete">Has unfinished topics</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Filter by date" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search topics or notes"
-          aria-label="Search lessons"
-        />
+      <div className="card-surface p-3.5 space-y-3">
+        <div className="grid gap-2 sm:grid-cols-3">
+          <Select value={studentId} onValueChange={setStudentId}>
+            <SelectTrigger aria-label="Filter by student">
+              <SelectValue placeholder="All students" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All students</SelectItem>
+              {students?.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.name} ({student.className})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-label="Filter by date" />
+
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search subjects or notes"
+            aria-label="Search lessons"
+          />
+        </div>
+
+        {hasFilters && (
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t">
+            <span>
+              Showing <strong>{lessons?.length ?? 0}</strong> matching lessons
+            </span>
+            <Button variant="ghost" size="sm" onClick={resetFilters} className="h-6 text-xs px-2">
+              <X className="size-3 mr-1" /> Clear Filters
+            </Button>
+          </div>
+        )}
       </div>
 
       {lessons === undefined ? (
@@ -99,8 +108,21 @@ function LessonsPage() {
       ) : lessons.length === 0 ? (
         <EmptyState
           icon={<NotebookPen className="size-5" />}
-          title="No lessons match these filters."
-          description="Clear the filters or create a new lesson."
+          title={hasFilters ? "No lessons match your search filters." : "No lessons logged yet."}
+          description={hasFilters ? "Try clearing the filters." : "Log your first lesson to build your teaching history."}
+          action={
+            hasFilters ? (
+              <Button variant="outline" onClick={resetFilters}>
+                Clear Filters
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/lessons/new">
+                  <Plus className="size-4 mr-1" /> Log Lesson Now
+                </Link>
+              </Button>
+            )
+          }
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">

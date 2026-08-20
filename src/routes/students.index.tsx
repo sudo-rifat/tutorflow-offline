@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { GraduationCap, Pencil, Plus, Power, Trash2 } from "lucide-react";
+import { CalendarCheck, GraduationCap, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/AppShell";
 import { ClientOnly } from "@/components/ClientOnly";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { ProgressBar } from "@/components/ProgressBar";
 import { StudentFormDialog } from "@/components/StudentFormDialog";
 import { EmptyState, LoadingState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +19,7 @@ export const Route = createFileRoute("/students/")({
   head: () => ({
     meta: [
       { title: "Students — TutorFlow" },
-      { name: "description", content: "All your students, their subjects, progress and next lesson." },
-      { property: "og:title", content: "Students — TutorFlow" },
-      { property: "og:description", content: "All your students, their subjects, progress and next lesson." },
+      { name: "description", content: "All your students, their subjects and lessons." },
     ],
   }),
   component: () => (
@@ -43,7 +40,7 @@ function StudentsPage() {
     <div className="space-y-5">
       <PageHeader
         title="Students"
-        description="Everything you teach, per student."
+        description="Manage your students, subjects, attendance and lessons."
         action={
           <StudentFormDialog
             trigger={
@@ -85,61 +82,61 @@ function StudentsPage() {
         />
       ) : (
         <ul className="grid gap-4 lg:grid-cols-2">
-          {filtered.map(({ student, subjects, totals, nextLesson, carriedForward }) => (
-            <li key={student.id} className="card-surface p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+          {filtered.map(({ student, subjects, totalLessons, nextLesson }) => (
+            <li key={student.id} className="card-surface p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      to="/students/$studentId"
+                      params={{ studentId: student.id }}
+                      className="truncate text-base font-semibold hover:underline block"
+                    >
+                      {student.name}
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                      {student.className}
+                      {student.groupName ? ` · ${student.groupName}` : ""}
+                    </p>
+                  </div>
+                  <Badge variant={student.status === "active" ? "default" : "secondary"}>
+                    {student.status === "active" ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+
+                <p className="mt-3 text-sm">
+                  <span className="font-semibold text-xs text-muted-foreground block">Subjects:</span>
+                  {subjects.length ? subjects.map((s) => s.name).join(", ") : "No subjects added yet"}
+                </p>
+
+                <dl className="mt-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground border-t border-b py-2 my-3">
+                  <div>
+                    <dt className="text-muted-foreground">Total Lessons</dt>
+                    <dd className="text-sm font-semibold text-foreground">{totalLessons}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Next Scheduled</dt>
+                    <dd className="text-sm font-semibold text-foreground">
+                      {nextLesson ? formatDisplayDate(nextLesson.lessonDate) : "—"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button asChild variant="secondary" size="sm">
+                  <Link to="/students/$studentId" params={{ studentId: student.id }}>
+                    Profile
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
                   <Link
                     to="/students/$studentId"
                     params={{ studentId: student.id }}
-                    className="truncate text-base font-semibold hover:underline"
+                    search={{ tab: "attendance" }}
                   >
-                    {student.name}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">
-                    {student.className}
-                    {student.groupName ? ` · ${student.groupName}` : ""}
-                  </p>
-                </div>
-                <Badge variant={student.status === "active" ? "default" : "secondary"}>
-                  {student.status === "active" ? "Active" : "Inactive"}
-                </Badge>
-              </div>
-
-              <p className="mt-3 text-sm">
-                {subjects.length ? subjects.map((s) => s.name).join(", ") : "No subjects yet"}
-              </p>
-
-              <div className="mt-3">
-                <ProgressBar
-                  percent={totals.percent}
-                  label={`${totals.completed} of ${totals.total} topics completed`}
-                />
-              </div>
-
-              <dl className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                <div>
-                  <dt>Pending</dt>
-                  <dd className="text-sm font-medium text-foreground">
-                    {totals.pending + totals.partial + totals.notStarted}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Carried forward</dt>
-                  <dd className="text-sm font-medium text-foreground">{carriedForward}</dd>
-                </div>
-                <div>
-                  <dt>Next lesson</dt>
-                  <dd className="text-sm font-medium text-foreground">
-                    {nextLesson ? formatDisplayDate(nextLesson.lessonDate) : "—"}
-                  </dd>
-                </div>
-              </dl>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button asChild variant="secondary" size="sm">
-                  <Link to="/students/$studentId" params={{ studentId: student.id }}>
-                    View
+                    <CalendarCheck className="size-3.5" aria-hidden="true" />
+                    Attendance
                   </Link>
                 </Button>
                 <Button asChild size="sm">
@@ -149,7 +146,7 @@ function StudentsPage() {
                     search={{ tab: "subjects" }}
                   >
                     <Plus className="size-3.5" aria-hidden="true" />
-                    Add subject
+                    Subject
                   </Link>
                 </Button>
 
@@ -175,14 +172,14 @@ function StudentsPage() {
                 </Button>
                 <ConfirmDialog
                   title={`Delete ${student.name}?`}
-                  description="This also deletes their subjects, chapters, topics and lesson history from this device. This cannot be undone."
+                  description="This student and their records will be removed."
                   onConfirm={async () => {
                     try {
                       await deleteStudentCascade(student.id);
                       toast.success("Student deleted");
                     } catch (error) {
                       console.error("Failed to delete student", error);
-                      toast.error("Unable to delete this student. Please try again.");
+                      toast.error("Unable to delete this student.");
                     }
                   }}
                   trigger={
