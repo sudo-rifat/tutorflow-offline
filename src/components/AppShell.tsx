@@ -1,16 +1,22 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarDays, GraduationCap, Home, Layers, NotebookPen, Search, Settings } from "lucide-react";
+import { CalendarCheck, CalendarDays, GraduationCap, NotebookPen, Search, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/today", label: "Today", icon: CalendarDays },
+const SIDEBAR_NAV = [
+  { to: "/", label: "Today", icon: CalendarDays },
+  { to: "/attendance", label: "Attendance", icon: CalendarCheck },
   { to: "/students", label: "Students", icon: GraduationCap },
   { to: "/lessons", label: "Lessons", icon: NotebookPen },
-  { to: "/curriculum", label: "Classes", icon: Layers },
   { to: "/settings", label: "Settings", icon: Settings },
+] as const;
+
+const MOBILE_NAV = [
+  { to: "/", label: "Today", icon: CalendarDays },
+  { to: "/attendance", label: "Attendance", icon: CalendarCheck },
+  { to: "/students", label: "Students", icon: GraduationCap },
+  { to: "/lessons", label: "Lessons", icon: NotebookPen },
 ] as const;
 
 function isActive(pathname: string, to: string) {
@@ -35,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <nav aria-label="Main navigation" className="flex flex-col gap-1">
-            {NAV.map(({ to, label, icon: Icon }) => (
+            {SIDEBAR_NAV.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -78,13 +84,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
               <span className="text-base font-semibold">TutorFlow</span>
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Link
                 to="/search"
                 aria-label="Search"
-                className="flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground"
+                className="flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground"
               >
                 <Search className="size-4" aria-hidden="true" />
+              </Link>
+              <Link
+                to="/settings"
+                aria-label="Settings"
+                className="flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="size-4" aria-hidden="true" />
               </Link>
             </div>
           </header>
@@ -95,16 +108,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav
         aria-label="Main navigation"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-card/95 pt-1 backdrop-blur md:hidden"
+        className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-card/95 pt-1 backdrop-blur md:hidden"
       >
-        {NAV.map(({ to, label, icon: Icon }) => (
+        {MOBILE_NAV.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
             aria-current={isActive(pathname, to) ? "page" : undefined}
             className={cn(
               "flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
-              isActive(pathname, to) ? "text-primary" : "text-muted-foreground",
+              isActive(pathname, to) ? "text-primary font-bold" : "text-muted-foreground",
             )}
           >
             <Icon className="size-5" aria-hidden="true" />

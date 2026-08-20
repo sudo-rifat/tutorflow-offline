@@ -27,6 +27,12 @@ export function tomorrowString(): string {
   return toLocalDateString(d);
 }
 
+export function yesterdayString(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return toLocalDateString(d);
+}
+
 export function formatDisplayDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return iso;

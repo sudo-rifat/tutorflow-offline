@@ -47,14 +47,19 @@ export interface Topic extends Timestamps {
   orderIndex: number;
 }
 
+export interface LessonItem {
+  id: ID;
+  subjectId?: ID | undefined;
+  subjectName: string;
+  notes: string;
+}
+
 export interface Lesson extends Timestamps {
   id: ID;
   studentId: ID;
-  subjectId: ID;
-  chapterId?: ID | undefined;
   /** ISO date only, e.g. 2026-08-08 (local calendar day) */
   lessonDate: string;
-  lessonGoal?: string | undefined;
+  items: LessonItem[];
   generalNote?: string | undefined;
 }
 
