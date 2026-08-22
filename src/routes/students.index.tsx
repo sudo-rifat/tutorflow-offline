@@ -83,52 +83,34 @@ function StudentsPage() {
       ) : (
         <ul className="grid gap-4 lg:grid-cols-2">
           {filtered.map(({ student, subjects, totalLessons, nextLesson }) => (
-            <li key={student.id} className="card-surface p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <Link
-                      to="/students/$studentId"
-                      params={{ studentId: student.id }}
-                      className="truncate text-base font-semibold hover:underline block"
-                    >
-                      {student.name}
-                    </Link>
-                    <p className="text-sm text-muted-foreground">
-                      {student.className}
-                      {student.groupName ? ` · ${student.groupName}` : ""}
-                    </p>
-                  </div>
-                  <Badge variant={student.status === "active" ? "default" : "secondary"}>
-                    {student.status === "active" ? "Active" : "Inactive"}
-                  </Badge>
+            <li key={student.id} className="card-surface flex flex-col gap-3 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <Link
+                    to="/students/$studentId"
+                    params={{ studentId: student.id }}
+                    className="block truncate text-base font-semibold hover:underline"
+                  >
+                    {student.name}
+                  </Link>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {student.className}
+                    {student.groupName ? ` · ${student.groupName}` : ""}
+                  </p>
                 </div>
-
-                <p className="mt-3 text-sm">
-                  <span className="font-semibold text-xs text-muted-foreground block">Subjects:</span>
-                  {subjects.length ? subjects.map((s) => s.name).join(", ") : "No subjects added yet"}
-                </p>
-
-                <dl className="mt-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground border-t border-b py-2 my-3">
-                  <div>
-                    <dt className="text-muted-foreground">Total Lessons</dt>
-                    <dd className="text-sm font-semibold text-foreground">{totalLessons}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Next Scheduled</dt>
-                    <dd className="text-sm font-semibold text-foreground">
-                      {nextLesson ? formatDisplayDate(nextLesson.lessonDate) : "—"}
-                    </dd>
-                  </div>
-                </dl>
+                {student.status === "active" ? null : <Badge variant="secondary">Inactive</Badge>}
               </div>
 
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Button asChild variant="secondary" size="sm">
-                  <Link to="/students/$studentId" params={{ studentId: student.id }}>
-                    Profile
-                  </Link>
-                </Button>
+              <p className="truncate text-sm text-muted-foreground">
+                {subjects.length ? subjects.map((s) => s.name).join(", ") : "No subjects yet"}
+              </p>
+
+              <p className="text-xs text-muted-foreground">
+                {totalLessons} lessons
+                {nextLesson ? ` · next ${formatDisplayDate(nextLesson.lessonDate)}` : ""}
+              </p>
+
+              <div className="flex items-center gap-1.5 pt-1">
                 <Button asChild variant="outline" size="sm">
                   <Link
                     to="/students/$studentId"
@@ -139,7 +121,7 @@ function StudentsPage() {
                     Attendance
                   </Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild variant="outline" size="sm">
                   <Link
                     to="/students/$studentId"
                     params={{ studentId: student.id }}
@@ -150,48 +132,55 @@ function StudentsPage() {
                   </Link>
                 </Button>
 
-                <StudentFormDialog
-                  student={student}
-                  trigger={
-                    <Button variant="outline" size="sm">
-                      <Pencil className="size-3.5" aria-hidden="true" />
-                      Edit
-                    </Button>
-                  }
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={async () => {
-                    await toggleStudentStatus(student);
-                    toast.success(student.status === "active" ? "Marked inactive" : "Marked active");
-                  }}
-                >
-                  <Power className="size-3.5" aria-hidden="true" />
-                  {student.status === "active" ? "Deactivate" : "Activate"}
-                </Button>
-                <ConfirmDialog
-                  title={`Delete ${student.name}?`}
-                  description="This student and their records will be removed."
-                  onConfirm={async () => {
-                    try {
-                      await deleteStudentCascade(student.id);
-                      toast.success("Student deleted");
-                    } catch (error) {
-                      console.error("Failed to delete student", error);
-                      toast.error("Unable to delete this student.");
+                <div className="ml-auto flex items-center gap-0.5">
+                  <StudentFormDialog
+                    student={student}
+                    trigger={
+                      <Button variant="ghost" size="icon" className="size-8" aria-label={`Edit ${student.name}`}>
+                        <Pencil className="size-4" aria-hidden="true" />
+                      </Button>
                     }
-                  }}
-                  trigger={
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                      <Trash2 className="size-3.5" aria-hidden="true" />
-                      Delete
-                    </Button>
-                  }
-                />
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    aria-label={student.status === "active" ? "Deactivate" : "Activate"}
+                    onClick={async () => {
+                      await toggleStudentStatus(student);
+                      toast.success(student.status === "active" ? "Marked inactive" : "Marked active");
+                    }}
+                  >
+                    <Power className="size-4" aria-hidden="true" />
+                  </Button>
+                  <ConfirmDialog
+                    title={`Delete ${student.name}?`}
+                    description="This student and their records will be removed."
+                    onConfirm={async () => {
+                      try {
+                        await deleteStudentCascade(student.id);
+                        toast.success("Student deleted");
+                      } catch (error) {
+                        console.error("Failed to delete student", error);
+                        toast.error("Unable to delete this student.");
+                      }
+                    }}
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 text-destructive hover:text-destructive"
+                        aria-label={`Delete ${student.name}`}
+                      >
+                        <Trash2 className="size-4" aria-hidden="true" />
+                      </Button>
+                    }
+                  />
+                </div>
               </div>
             </li>
           ))}
+
         </ul>
       )}
     </div>
