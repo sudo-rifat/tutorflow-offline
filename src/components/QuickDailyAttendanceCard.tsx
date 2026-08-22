@@ -1,24 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { CheckCircle2, CalendarCheck, UserCheck, Plus, Calendar } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { listStudents } from "@/services/students";
-import {
-  getAttendanceMap,
-  toggleAttendance,
-  ATTENDANCE_CHANGE_EVENT,
-} from "@/services/attendance";
+import { getAttendanceMap, toggleAttendance, ATTENDANCE_CHANGE_EVENT } from "@/services/attendance";
 
 export function QuickDailyAttendanceCard() {
   const students = useLiveQuery(() => listStudents(), []);
   const today = new Date();
-  
-  // Format today YYYY-MM-DD
+
   const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  
+
   const [attendanceState, setAttendanceState] = useState<Record<string, boolean>>({});
 
   const refreshAllAttendance = useCallback(() => {
@@ -54,111 +49,56 @@ export function QuickDailyAttendanceCard() {
   const handleToggle = (studentId: string, studentName: string) => {
     const isNowTaught = toggleAttendance(studentId, todayIso);
     setAttendanceState((prev) => ({ ...prev, [studentId]: isNowTaught }));
-
-    if (isNowTaught) {
-      toast.success(`Marked ${studentName} as taught today! 🎉`);
-    } else {
-      toast.info(`Removed today's attendance for ${studentName}`);
-    }
+    toast.success(isNowTaught ? `${studentName} marked taught` : `${studentName} attendance removed`);
   };
 
-  const formattedToday = today.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-
   return (
-    <div className="card-surface p-4 sm:p-5 rounded-xl border bg-gradient-to-r from-emerald-500/5 via-card to-card border-emerald-500/20 shadow-sm space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <CalendarCheck className="size-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold tracking-tight">Today's Quick Attendance</h2>
-              <Badge variant="outline" className="text-[11px] font-normal border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                {formattedToday}
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              One-click attendance logger for active students
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={taughtCount === activeStudents.length ? "default" : "secondary"}
-            className="px-3 py-1 text-xs font-semibold"
-          >
-            <UserCheck className="size-3.5 mr-1" />
-            {taughtCount} / {activeStudents.length} Taught Today
-          </Badge>
-          <Button asChild variant="ghost" size="sm" className="text-xs h-8">
-            <Link to="/attendance">
-              <Calendar className="size-3.5 mr-1" />
-              Full Calendar
-            </Link>
-          </Button>
-        </div>
+    <section className="card-surface p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">
+          Attendance today
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
+            {taughtCount}/{activeStudents.length}
+          </span>
+        </h2>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/attendance">Calendar</Link>
+        </Button>
       </div>
 
-      {/* Grid of students with 1-click attendance button */}
-      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {activeStudents.map((student) => {
           const isTaught = Boolean(attendanceState[student.id]);
           return (
             <div
               key={student.id}
-              className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                isTaught
-                  ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-950 dark:text-emerald-100"
-                  : "bg-background/80 hover:bg-accent/50 border-border"
-              }`}
+              className={cn(
+                "flex items-center justify-between gap-2 rounded-md border px-3 py-2",
+                isTaught ? "border-success/40 bg-success/10" : "border-border",
+              )}
             >
-              <div className="min-w-0 pr-2">
-                <Link
-                  to="/students/$studentId"
-                  params={{ studentId: student.id }}
-                  search={{ tab: "attendance" }}
-                  className="font-semibold text-sm hover:underline truncate block"
-                >
-                  {student.name}
-                </Link>
-                <p className="text-xs text-muted-foreground truncate">
-                  {student.className}
-                  {student.preferredTime ? ` · ${student.preferredTime}` : ""}
-                </p>
-              </div>
-
+              <Link
+                to="/students/$studentId"
+                params={{ studentId: student.id }}
+                search={{ tab: "attendance" }}
+                className="min-w-0 truncate text-sm font-medium hover:underline"
+              >
+                {student.name}
+              </Link>
               <Button
                 size="sm"
-                variant={isTaught ? "default" : "outline"}
+                variant={isTaught ? "secondary" : "outline"}
                 onClick={() => handleToggle(student.id, student.name)}
-                className={`shrink-0 text-xs gap-1.5 h-8 font-medium ${
-                  isTaught
-                    ? "bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-600"
-                    : "border-dashed hover:border-emerald-500 hover:text-emerald-600"
-                }`}
+                className="h-8 shrink-0 text-xs"
+                aria-pressed={isTaught}
               >
-                {isTaught ? (
-                  <>
-                    <CheckCircle2 className="size-3.5" />
-                    Taught
-                  </>
-                ) : (
-                  <>
-                    <Plus className="size-3.5" />
-                    Mark Taught
-                  </>
-                )}
+                {isTaught ? <Check className="size-3.5" /> : <Plus className="size-3.5" />}
+                {isTaught ? "Taught" : "Mark"}
               </Button>
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
